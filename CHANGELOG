@@ -1,0 +1,37 @@
+# Changelog
+ 
+Alle relevanten Änderungen an diesem Projekt werden hier dokumentiert.
+ 
+## [0.7c] - 2026-09-25
+ 
+### Geändert
+ 
+- Entwickler-Variablen entfernt
+- Objektbaum vereinfacht
+- Diagnose bereinigt
+ 
+### Beibehalten
+ 
+- Verbindung aktiv
+- Tokenverwaltung
+- Steuerbefehle
+- API-Diagnose
+ 
+---
+ 
+## [0.7b]
+ 
+### Hinzugefügt
+ 
+- Verbindung aktiv
+- Deaktivierungsmodus
+- Token gültig bis
+ 
+---
+ 
+## [0.7a]
+ 
+### Hinzugefügt
+ 
+- Erweiterte Startdiagnose
+- Fortschrittsanzeige
