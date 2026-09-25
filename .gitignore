@@ -1,0 +1,46 @@
+# Operating systems
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors and IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# PHP and dependencies
+vendor/
+composer.lock
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# Test and coverage output
+.coverage
+coverage/
+.phpunit.result.cache
+
+# Build and archive files
+*.zip
+*.tar
+*.tar.gz
+
+# Synology metadata
+@eaDir/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+secrets.json
+credentials.json
+
+# Local backups
+*_Backup/
+*_backup/
+backup/
