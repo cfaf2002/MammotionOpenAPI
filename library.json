@@ -1,12 +1,12 @@
 {
   "id": "{05A01141-E5C4-4CEB-B273-A8C4C805D99D}",
-  "author": "Armin F",
+  "author": "Armin Frohwerk",
   "name": "Mammotion Open API",
-  "url": "https://developer.mammotion.com/",
+  "url": "https://github.com/cfaf2002/MammotionOpenAPI",
   "compatibility": {
     "version": "9.0"
   },
-  "version": "0.7c",
-  "build": 12,
+  "version": "0.7e",
+  "build": 14,
   "date": 1790150400
 }

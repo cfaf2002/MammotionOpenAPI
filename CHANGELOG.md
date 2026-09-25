@@ -1,47 +1,23 @@
 # Changelog
 
-Alle relevanten Änderungen an diesem Projekt werden in dieser Datei dokumentiert.
+## [0.7e] - 2026-09-23
 
-Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
-
-## [Unreleased]
-
-### Geplant
-
-- Erweiterungen auf Basis zusätzlicher stabiler Mammotion-API-Endpunkte
-
-## [0.7c] - 2026-09-25
+### Hinzugefügt
+- Premium-Dashboard als HTMLBox
+- automatische Übernahme von API-Nickname, Modell und Gerätebild
+- Akku-Ring, Statusfarben und WLAN-Qualitätsanzeige
 
 ### Geändert
+- Dashboard optisch verfeinert
+- öffentliche Repository-Metadaten ergänzt
 
-- Entwicklungsvariablen entfernt
+### Sicherheit
+- keine interaktiven WebHooks im Dashboard
+- Steuerung weiterhin über native IP-Symcon-Aktionen
+
+## [0.7c]
 - Objektbaum bereinigt
-- Diagnose und Startprüfung vereinfacht
+- Entwickler-Variablen entfernt
 
-### Beibehalten
-
-- Verbindungsschalter
-- Automatische Tokenverwaltung
-- Steuerbefehle
-- Offline-Erkennung
-- Wiederholungslogik
-
-## [0.7b] - 2026-09-25
-
-### Hinzugefügt
-
-- Schalter `Verbindung aktiv`
-- Systemzustand `Deaktiviert`
-- Token-Ablaufzeit im Objektbaum
-
-### Geändert
-
-- API-Aufrufe und Token-Erneuerungen werden bei deaktivierter Verbindung blockiert
-- Hintergrundtimer werden bei deaktivierter Verbindung gestoppt
-
-## [0.7a] - 2026-09-25
-
-### Hinzugefügt
-
-- Erweiterte Startdiagnose
-- Fortschritts- und Laufzeitanzeige für die Entwicklung
+## [0.7b]
+- Verbindungsschalter und deaktivierter Zustand ergänzt
