@@ -1,0 +1,11 @@
+{
+  "id": "{F9665D3E-0FBE-48F9-8975-E66A2AA35BB5}",
+  "name": "Mammotion",
+  "type": 3,
+  "vendor": "Mammotion",
+  "aliases": ["Mammotion Open API"],
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "MAMMO"
+}

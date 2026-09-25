@@ -1,0 +1,88 @@
+{
+  "elements": [
+    {
+      "type": "ValidationTextBox",
+      "name": "ClientID",
+      "caption": "Client ID"
+    },
+    {
+      "type": "PasswordTextBox",
+      "name": "ClientSecret",
+      "caption": "Client Secret"
+    },
+    {
+      "type": "ValidationTextBox",
+      "name": "DeviceID",
+      "caption": "Device ID (leer = automatisch ermitteln)"
+    },
+    {
+      "type": "NumberSpinner",
+      "name": "PollInterval",
+      "caption": "Abfrageintervall (Sekunden)",
+      "minimum": 30
+    },
+    {
+      "type": "CheckBox",
+      "name": "EnableConnection",
+      "caption": "Verbindung aktiv"
+    },
+    {
+      "type": "CheckBox",
+      "name": "EnableControl",
+      "caption": "Schreibbefehle freigeben"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Button",
+      "caption": "Vollständige Startprüfung",
+      "onClick": "echo MAMMO_StartCheck($id);"
+    },
+    {
+      "type": "Button",
+      "caption": "Verbindung testen / aktualisieren",
+      "onClick": "echo MAMMO_RefreshWithResult($id);"
+    },
+    {
+      "type": "Button",
+      "caption": "Token jetzt erneuern",
+      "onClick": "echo MAMMO_RenewTokenWithResult($id);"
+    },
+    {
+      "type": "Label",
+      "caption": "v0.7c: aufgeräumte Betriebsansicht; Diagnose enthält das Ergebnis der Startprüfung."
+    }
+  ],
+  "status": [
+    {
+      "code": 101,
+      "icon": "inactive",
+      "caption": "Instanz wird erstellt"
+    },
+    {
+      "code": 102,
+      "icon": "active",
+      "caption": "Aktiv"
+    },
+    {
+      "code": 104,
+      "icon": "inactive",
+      "caption": "Instanz inaktiv"
+    },
+    {
+      "code": 200,
+      "icon": "error",
+      "caption": "Konfiguration unvollständig"
+    },
+    {
+      "code": 201,
+      "icon": "error",
+      "caption": "API-Fehler"
+    },
+    {
+      "code": 202,
+      "icon": "error",
+      "caption": "Kein Mäher gefunden"
+    }
+  ]
+}
