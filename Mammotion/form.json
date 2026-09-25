@@ -50,7 +50,7 @@
     },
     {
       "type": "Label",
-      "caption": "v0.7c: aufgeräumte Betriebsansicht; Diagnose enthält das Ergebnis der Startprüfung."
+      "caption": "v0.7e Stable: Premium-Dashboard mit API-Nickname, Modell und Gerätebild."
     }
   ],
   "status": [

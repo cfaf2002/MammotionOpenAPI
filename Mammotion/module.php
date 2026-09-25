@@ -27,6 +27,10 @@ class Mammotion extends IPSModule
         $this->RegisterAttributeInteger('TokenValidUntil', 0);
         $this->RegisterAttributeString('CredentialHash', '');
         $this->RegisterAttributeString('ResolvedDeviceID', '');
+        $this->RegisterAttributeString('DeviceNickname', '');
+        $this->RegisterAttributeString('DeviceApiName', '');
+        $this->RegisterAttributeString('DeviceModel', '');
+        $this->RegisterAttributeString('DeviceIconURL', '');
         $this->RegisterAttributeString('TaskMap', '{}');
         $this->RegisterAttributeBoolean('RefreshRunning', false);
         $this->RegisterAttributeInteger('RetryAttempt', 0);
@@ -37,6 +41,7 @@ class Mammotion extends IPSModule
         $this->RegisterTimer('RetryTimer', 0, 'MAMMO_RetryRefresh($_IPS["TARGET"]);');
 
         $this->EnsureProfiles();
+        $this->RegisterVariableString('Dashboard', 'Dashboard', '~HTMLBox', 5);
         $this->RegisterVariableBoolean('Online', 'Online', '~Switch', 10);
         $this->RegisterVariableInteger('OperationStatus', 'Betriebsstatus', self::PROFILE_OPERATION, 20);
         $this->RegisterVariableString('Status', 'Status (Rohwert)', '', 21);
@@ -78,10 +83,12 @@ class Mammotion extends IPSModule
             $this->SetValue('SystemState', 6);
             $this->SetValue('APIStatus', 'Verbindung manuell deaktiviert');
             $this->SetStatus(104);
+            $this->UpdateDashboard();
             return;
         }
         if (!$this->ValidateConfiguration()) {
             $this->SetTimerInterval('UpdateTimer', 0);
+            $this->UpdateDashboard();
             return;
         }
         $hash = $this->BuildCredentialHash();
@@ -94,6 +101,7 @@ class Mammotion extends IPSModule
         $this->SetTimerInterval('UpdateTimer', max(30, $this->ReadPropertyInteger('PollInterval')) * 1000);
         $this->SetStatus(102);
         $this->SetTimerInterval('StartupTimer', 2000);
+        $this->UpdateDashboard();
     }
 
     public function RequestAction($Ident, $Value): void
@@ -212,6 +220,7 @@ class Mammotion extends IPSModule
             if ($device === null) throw new RuntimeException('Konfigurierte Device-ID wurde nicht gefunden.');
             $id = (string) ($device['id'] ?? '');
             $this->WriteAttributeString('ResolvedDeviceID', $id);
+            $this->StoreDeviceMetadata($device);
             $steps[] = 'Device-ID OK';
             if (((int) ($device['online'] ?? 0)) !== 1) {
                 $this->SetOfflineState('Geräteliste meldet Mäher offline');
@@ -268,6 +277,7 @@ class Mammotion extends IPSModule
             return false;
         } finally {
             $this->WriteAttributeBoolean('RefreshRunning', false);
+            $this->UpdateDashboard();
         }
     }
 
@@ -368,7 +378,9 @@ class Mammotion extends IPSModule
         if ($id === '') throw new RuntimeException('Keine Device-ID verfügbar.');
         $payload = ['deviceId' => $id, 'action' => $action]; if ($params !== null) $payload['params'] = $params;
         $r = $this->ApiRequest('POST', '/v1/mower/action', $payload); $ok = (bool) ($r['data']['commandResult'] ?? (($r['code'] ?? -1) === 0));
-        $this->SetValue('LastResult', ($ok ? $action . ' erfolgreich' : $action . ' fehlgeschlagen')); return $ok;
+        $this->SetValue('LastResult', ($ok ? $action . ' erfolgreich' : $action . ' fehlgeschlagen'));
+        $this->UpdateDashboard();
+        return $ok;
     }
 
     private function RequireControlEnabled(): void { if (!$this->ReadPropertyBoolean('EnableControl')) throw new RuntimeException('Schreibbefehle sind nicht freigegeben.'); }
@@ -429,6 +441,76 @@ class Mammotion extends IPSModule
     {
         $ch=curl_init($url);curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>true,CURLOPT_CUSTOMREQUEST=>$method,CURLOPT_HTTPHEADER=>$headers,CURLOPT_CONNECTTIMEOUT=>10,CURLOPT_TIMEOUT=>30]);if($body!==null)curl_setopt($ch,CURLOPT_POSTFIELDS,$body);
         $response=curl_exec($ch);$status=(int)curl_getinfo($ch,CURLINFO_HTTP_CODE);$error=curl_error($ch);curl_close($ch);if($response===false)throw new RuntimeException('HTTP-Verbindungsfehler: '.$error);return['status'=>$status,'body'=>(string)$response];
+    }
+
+    private function StoreDeviceMetadata(array $device): void
+    {
+        $this->WriteAttributeString('DeviceNickname', trim((string) ($device['nickname'] ?? '')));
+        $this->WriteAttributeString('DeviceApiName', trim((string) ($device['name'] ?? '')));
+        $this->WriteAttributeString('DeviceModel', trim((string) ($device['model'] ?? '')));
+        $icon = trim((string) ($device['icon'] ?? ''));
+        $this->WriteAttributeString('DeviceIconURL', filter_var($icon, FILTER_VALIDATE_URL) ? $icon : '');
+    }
+
+    private function UpdateDashboard(): void
+    {
+        $this->SetValue('Dashboard', $this->BuildDashboard());
+    }
+
+    private function BuildDashboard(): string
+    {
+        $nickname = $this->ReadAttributeString('DeviceNickname');
+        $apiName = $this->ReadAttributeString('DeviceApiName');
+        $model = $this->ReadAttributeString('DeviceModel');
+        $iconUrl = $this->ReadAttributeString('DeviceIconURL');
+        $instanceName = IPS_GetName($this->InstanceID);
+        $title = $nickname !== '' ? $nickname : ($apiName !== '' ? $apiName : ($instanceName !== '' ? $instanceName : 'MAMMOTION'));
+
+        $enabled = $this->ReadPropertyBoolean('EnableConnection');
+        $online = (bool) $this->GetValue('Online');
+        $operation = (int) $this->GetValue('OperationStatus');
+        $system = (int) $this->GetValue('SystemState');
+        $battery = max(0, min(100, (int) $this->GetValue('Battery')));
+        $knifeHeight = (int) $this->GetValue('KnifeHeight');
+        $wifi = (int) $this->GetValue('WifiRSSI');
+        $firmware = trim((string) $this->GetValue('Firmware'));
+        $lastSuccess = (int) $this->GetValue('LastSuccess');
+
+        $states = [
+            0 => ['Offline', '#64748b', 'OFFLINE'], 1 => ['Bereit', '#22c55e', 'BEREIT'],
+            2 => ['Mäht', '#10b981', 'AKTIV'], 3 => ['Pausiert', '#f59e0b', 'PAUSE'],
+            4 => ['Lädt', '#3b82f6', 'LADEN'], 5 => ['Heimfahrt', '#8b5cf6', 'HEIMFAHRT'],
+            6 => ['Gerätefehler', '#ef4444', 'FEHLER'], 7 => ['API/Cloud-Fehler', '#f97316', 'API-FEHLER'],
+            8 => ['Unbekannt', '#94a3b8', 'UNBEKANNT']
+        ];
+        [$status, $accent, $badge] = $states[$operation] ?? $states[8];
+        if (!$enabled || $system === 6) { $status='Verbindung deaktiviert'; $accent='#64748b'; $badge='DEAKTIVIERT'; }
+        elseif (!$online) { $status='Offline'; $accent='#64748b'; $badge='OFFLINE'; }
+        elseif ($system === 5) { $status='Systemfehler'; $accent='#ef4444'; $badge='FEHLER'; }
+        elseif ($system === 3) { $badge='TEILWEISE'; }
+
+        $batteryColor = $battery < 20 ? '#ef4444' : ($battery < 40 ? '#f59e0b' : '#22c55e');
+        $wifiValue = $wifi === 0 ? 'Keine Daten' : $wifi . ' dBm';
+        $wifiQuality = $wifi === 0 ? 'Unbekannt' : ($wifi >= -55 ? 'Sehr gut' : ($wifi >= -67 ? 'Gut' : ($wifi >= -75 ? 'Mittel' : 'Schwach')));
+        $update = $lastSuccess > 0 ? date('d.m.Y · H:i', $lastSuccess) : 'Noch keine Aktualisierung';
+        $model = $model !== '' ? $model : 'Mammotion Mäher';
+        $firmware = $firmware !== '' ? $firmware : 'Unbekannt';
+        $safeTitle=$this->EscapeHtml($title); $safeModel=$this->EscapeHtml($model); $safeStatus=$this->EscapeHtml($status);
+        $safeBadge=$this->EscapeHtml($badge); $safeWifi=$this->EscapeHtml($wifiValue); $safeWifiQuality=$this->EscapeHtml($wifiQuality);
+        $safeFirmware=$this->EscapeHtml($firmware); $safeUpdate=$this->EscapeHtml($update);
+        $visual = $iconUrl !== '' ? '<img class="mower-img" src="'.$this->EscapeHtml($iconUrl).'" alt="Mammotion Mäher">' : '<div class="mower-fallback">M</div>';
+
+        return '<div class="mcard" style="--a:'.$accent.';--b:'.$batteryColor.';--p:'.$battery.'%">'
+        .'<style>.mcard{box-sizing:border-box;width:100%;min-height:330px;padding:22px;border-radius:26px;color:#f8fafc;background:radial-gradient(circle at 88% 5%,color-mix(in srgb,var(--a) 22%,transparent),transparent 34%),linear-gradient(145deg,#182235 0%,#0c1423 62%,#060a12 100%);font-family:Inter,Segoe UI,Arial,sans-serif;box-shadow:0 20px 55px rgba(2,6,23,.44);overflow:hidden}.mcard *{box-sizing:border-box}.top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.identity{display:flex;gap:14px;align-items:center;min-width:0}.device-visual{width:76px;height:76px;display:grid;place-items:center;border-radius:21px;background:linear-gradient(145deg,rgba(255,255,255,.11),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.11);overflow:hidden;flex:0 0 auto}.mower-img{display:block;width:100%;height:100%;object-fit:contain;padding:6px;filter:drop-shadow(0 8px 12px rgba(0,0,0,.32))}.mower-fallback{font-size:34px;font-weight:900;color:var(--a)}.name{font-size:25px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.model{margin-top:5px;color:#94a3b8;font-size:12px}.status-dot{display:inline-block;width:7px;height:7px;margin-right:6px;border-radius:50%;background:var(--a);box-shadow:0 0 12px var(--a)}.badge{padding:7px 10px;border-radius:999px;background:color-mix(in srgb,var(--a) 18%,transparent);border:1px solid color-mix(in srgb,var(--a) 58%,transparent);color:var(--a);font-size:10px;font-weight:850;letter-spacing:.1em;white-space:nowrap}.hero{display:grid;grid-template-columns:125px 1fr;gap:22px;align-items:center;margin-top:22px}.ring{width:122px;height:122px;display:grid;place-items:center;border-radius:50%;position:relative;background:conic-gradient(var(--b) var(--p),rgba(148,163,184,.14) 0)}.ring:before{content:"";position:absolute;inset:10px;border-radius:50%;background:#0d1625;box-shadow:inset 0 0 24px rgba(0,0,0,.38)}.ring-in{position:relative;text-align:center}.pct{font-size:31px;font-weight:900}.small{color:#94a3b8;font-size:10px;text-transform:uppercase;letter-spacing:.15em}.state{font-size:27px;font-weight:850;line-height:1.1}.line{width:52px;height:4px;margin:12px 0 0;border-radius:4px;background:var(--a);box-shadow:0 0 18px color-mix(in srgb,var(--a) 70%,transparent)}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}.metric{padding:13px 14px;border-radius:16px;background:rgba(15,23,42,.64);border:1px solid rgba(148,163,184,.12)}.mn{color:#94a3b8;font-size:9px;text-transform:uppercase;letter-spacing:.12em}.mv{margin-top:6px;font-size:15px;font-weight:780}.hint{margin-top:3px;color:#64748b;font-size:10px}.foot{display:flex;justify-content:space-between;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(148,163,184,.12);color:#64748b;font-size:10px}@media(max-width:520px){.mcard{padding:16px}.device-visual{width:60px;height:60px}.name{font-size:20px}.hero{grid-template-columns:95px 1fr;gap:15px}.ring{width:94px;height:94px}.pct{font-size:24px}.state{font-size:22px}.metrics{grid-template-columns:1fr 1fr}.metric:last-child{grid-column:1/-1}.foot{flex-direction:column}}</style>'
+        .'<div class="top"><div class="identity"><div class="device-visual">'.$visual.'</div><div><div class="name">'.$safeTitle.'</div><div class="model">'.$safeModel.'</div></div></div><div class="badge"><span class="status-dot"></span>'.$safeBadge.'</div></div>'
+        .'<div class="hero"><div class="ring"><div class="ring-in"><div class="pct">'.$battery.'%</div><div class="small">Akku · '.($battery >= 70 ? 'Sehr gut' : ($battery >= 40 ? 'Gut' : ($battery >= 20 ? 'Niedrig' : 'Kritisch'))).'</div></div></div><div><div class="state">'.$safeStatus.'</div><div class="line"></div></div></div>'
+        .'<div class="metrics"><div class="metric"><div class="mn">Mähhöhe</div><div class="mv">'.$knifeHeight.' mm</div></div><div class="metric"><div class="mn">WLAN</div><div class="mv">'.$safeWifi.'</div><div class="hint">'.$safeWifiQuality.'</div></div><div class="metric"><div class="mn">Firmware</div><div class="mv">'.$safeFirmware.'</div></div></div>'
+        .'<div class="foot"><span>Aktualisiert: '.$safeUpdate.'</span><span>v0.7e Stable</span></div></div>';
+    }
+
+    private function EscapeHtml(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
     private function EnsureProfiles(): void
