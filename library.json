@@ -1,0 +1,12 @@
+{
+  "id": "{05A01141-E5C4-4CEB-B273-A8C4C805D99D}",
+  "author": "Armin / Microsoft 365 Copilot",
+  "name": "Mammotion Open API",
+  "url": "https://developer.mammotion.com/",
+  "compatibility": {
+    "version": "9.0"
+  },
+  "version": "0.7c",
+  "build": 12,
+  "date": 1790150400
+}
