@@ -208,6 +208,7 @@ class Mammotion extends IPSModule
             return false;
         }
         $this->WriteAttributeBoolean('RefreshRunning', true);
+        $this->SetValue('SystemState', 1);
         $this->SetValue('LastAttempt', time());
         $steps = [];
         try {
@@ -251,8 +252,8 @@ class Mammotion extends IPSModule
                 $this->SetValue('Diagnostic', $text);
                 $this->SetValue('LastResult', 'Basisdaten aktualisiert; Zusatzabruf fehlgeschlagen');
                 $this->SetValue('LastSuccess', time());
+                $this->SetValue('SystemState', 3);
                 if ($startCheck) {
-                    $this->SetValue('SystemState', 3);
                     $this->SetValue('LastCheck', time());
                 }
                 $this->SetStatus(102);
@@ -288,8 +289,8 @@ class Mammotion extends IPSModule
         $this->SetValue('Diagnostic', $text);
         $this->SetValue('LastResult', 'Aktualisierung erfolgreich: ' . date('d.m.Y H:i:s'));
         $this->SetValue('LastSuccess', time());
+        $this->SetValue('SystemState', $systemState);
         if ($startCheck) {
-            $this->SetValue('SystemState', $systemState);
             $this->SetValue('LastCheck', time());
         }
         $this->SetStatus(102);
@@ -505,7 +506,7 @@ class Mammotion extends IPSModule
         .'<div class="top"><div class="identity"><div class="device-visual">'.$visual.'</div><div><div class="name">'.$safeTitle.'</div><div class="model">'.$safeModel.'</div></div></div><div class="badge"><span class="status-dot"></span>'.$safeBadge.'</div></div>'
         .'<div class="hero"><div class="ring"><div class="ring-in"><div class="pct">'.$battery.'%</div><div class="small">Akku · '.($battery >= 70 ? 'Sehr gut' : ($battery >= 40 ? 'Gut' : ($battery >= 20 ? 'Niedrig' : 'Kritisch'))).'</div></div></div><div><div class="state">'.$safeStatus.'</div><div class="line"></div></div></div>'
         .'<div class="metrics"><div class="metric"><div class="mn">Mähhöhe</div><div class="mv">'.$knifeHeight.' mm</div></div><div class="metric"><div class="mn">WLAN</div><div class="mv">'.$safeWifi.'</div><div class="hint">'.$safeWifiQuality.'</div></div><div class="metric"><div class="mn">Firmware</div><div class="mv">'.$safeFirmware.'</div></div></div>'
-        .'<div class="foot"><span>Aktualisiert: '.$safeUpdate.'</span><span>v0.7e Stable</span></div></div>';
+        .'<div class="foot"><span>Aktualisiert: '.$safeUpdate.'</span><span>v0.7e1 Stable</span></div></div>';
     }
 
     private function EscapeHtml(string $value): string

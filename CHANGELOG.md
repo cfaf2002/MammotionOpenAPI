@@ -1,23 +1,37 @@
 # Changelog
 
-## [0.7e] - 2026-09-23
+Alle relevanten Änderungen werden in dieser Datei dokumentiert.
+
+## [0.7e1] - 2026-09-23
+
+### Korrigiert
+
+- `SystemState` wird bei jedem Refresh auf `Prüfung läuft` gesetzt.
+- `CompleteSuccess()` aktualisiert den Systemzustand auch bei normalen Timer-Abrufen.
+- Teilweise erfolgreiche Abrufe setzen den Zustand immer auf `Teilweise verfügbar`.
+- Offline-Erkennung setzt den Zustand auch außerhalb der Startprüfung zuverlässig auf `Offline`.
+
+### Dokumentation
+
+- vollständige README erweitert
+- Statusvariablen und Zeitstempel erklärt
+- API-Endpunkte, Tokenverwaltung, FAQ und Fehlerbehebung dokumentiert
+
+## [0.7e]
 
 ### Hinzugefügt
-- Premium-Dashboard als HTMLBox
-- automatische Übernahme von API-Nickname, Modell und Gerätebild
-- Akku-Ring, Statusfarben und WLAN-Qualitätsanzeige
 
-### Geändert
-- Dashboard optisch verfeinert
-- öffentliche Repository-Metadaten ergänzt
-
-### Sicherheit
-- keine interaktiven WebHooks im Dashboard
-- Steuerung weiterhin über native IP-Symcon-Aktionen
+- Premium-Dashboard
+- automatische Übernahme von Nickname, Modell und Gerätebild
+- Akku-Ring und WLAN-Qualitätsanzeige
 
 ## [0.7c]
+
 - Objektbaum bereinigt
 - Entwickler-Variablen entfernt
 
 ## [0.7b]
-- Verbindungsschalter und deaktivierter Zustand ergänzt
+
+- Verbindungsschalter
+- deaktivierter Systemzustand
+- Token-Ablaufanzeige

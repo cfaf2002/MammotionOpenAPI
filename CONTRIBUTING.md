@@ -1,19 +1,29 @@
 # Mitwirken
 
-Beiträge sind willkommen.
+Vielen Dank für das Interesse am MammotionOpenAPI-Modul.
 
 ## Fehler melden
 
-Bitte Modulversion, IP-Symcon-Version, Gerätemodell, Systemzustand, API-Status, Diagnose und Schritte zum Reproduzieren angeben.
+Bitte folgende Angaben bereitstellen:
 
-Keine Client-Secrets, Access-Tokens oder persönlichen Daten veröffentlichen.
+- Modulversion
+- IP-Symcon-Version
+- Gerätemodell
+- Systemzustand
+- API-Status
+- Diagnose
+- Schritte zum Reproduzieren
+- vollständige Fehlermeldung
+
+Keine Client-Secrets, Access-Tokens, Device-IDs oder personenbezogenen Daten veröffentlichen.
 
 ## Pull Requests
 
-- Änderungen vom aktuellen `main`-Branch ableiten.
-- Bestehende Funktionen nicht unbeabsichtigt verändern.
-- README und CHANGELOG bei sichtbaren Änderungen aktualisieren.
-- Änderungen in einer IP-Symcon-Testinstanz prüfen.
-- Aussagekräftige Commit-Nachrichten verwenden.
+1. Änderungen vom aktuellen `main`-Branch ableiten.
+2. Bestehende Funktionalität nicht unbeabsichtigt verändern.
+3. Keine Zugangsdaten oder Test-Tokens einchecken.
+4. README und CHANGELOG bei sichtbaren Änderungen aktualisieren.
+5. Verhalten in einer IP-Symcon-Testinstanz prüfen.
+6. Aussagekräftige Commit-Nachrichten verwenden.
 
 Beiträge werden unter der MIT-Lizenz veröffentlicht.
