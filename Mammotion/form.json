@@ -50,7 +50,7 @@
     },
     {
       "type": "Label",
-      "caption": "v0.7e Stable: Premium-Dashboard mit API-Nickname, Modell und Gerätebild."
+      "caption": "v0.7e1 Stable: Systemzustand wird bei jedem Refresh aktualisiert; Premium-Dashboard mit API-Nickname, Modell und Gerätebild."
     }
   ],
   "status": [
